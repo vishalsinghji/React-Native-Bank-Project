@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, { useState } from 'react';
 import {
   StyleSheet,
   TextInput,
@@ -6,65 +6,67 @@ import {
   View,
   StatusBar,
   TouchableOpacity,
+  Alert,
 } from 'react-native';
 
 import Logo from '../components/Logo';
-import {Actions} from 'react-native-router-flux';
+import { Actions } from 'react-native-router-flux';
 
-export default class CheckBalance extends Component<{}> {
-  state = {
-    amount: '',
-    url: '',
+const API_BASE_URL = 'http://192.168.43.9:8080/api/v1/account_detail/';
+
+const CheckBalance = () => {
+  const [accountNumber, setAccountNumber] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const fetchBalance = async () => {
+    if (!accountNumber) return;
+    setLoading(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}${accountNumber}`);
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      const data = await response.json();
+      Alert.alert('Balance', `Balance: ${data.amount}`);
+    } catch (error) {
+      Alert.alert('Error', error.message || 'Failed to fetch balance');
+    } finally {
+      setLoading(false);
+    }
   };
-  handle_account = text => {
-    this.setState({
-      url: 'http://192.168.43.9:8080/api/v1/account_detail/' + text,
-    });
-  };
-  db_quiery = () => {
-    fetch(this.state.url)
-      .then(response => {
-        return response.json();
-      })
-      .then(responseData => {
-        alert('Balance: ' + responseData.amount);
 
-        // console.log(responseData);
-        // alert('Balance: ' + responseData.amount);
-      });
-  };
-
-  render() {
-    return (
-      <View style={styles.container}>
-        <StatusBar backgroundColor="#2c3e50" barStyle="light-content" />
-        <Logo />
-        <Text style={styles.logoText}> Check Balance</Text>
-
-        <TextInput
-          style={styles.inputBox}
-          underlineColorAndroid="rgba(0,0,0,0)"
-          placeholder="Account Number"
-          placeholderTextColor="#ffffff"
-          selectionColor="#fff"
-          keyboardType="number-pad"
-          onChangeText={this.handle_account}
-        />
-        <TouchableOpacity style={styles.button}>
-          <Text style={styles.buttonText} onPress={() => this.db_quiery()}>
-            CheckBalance
-          </Text>
-        </TouchableOpacity>
-
-        <View style={styles.signupTextCont}>
-          <Text style={styles.signupButton} onPress={() => Actions.Homes()}>
-            Home
-          </Text>
-        </View>
+  return (
+    <View style={styles.container}>
+      <StatusBar backgroundColor="#2c3e50" barStyle="light-content" />
+      <Logo />
+      <Text style={styles.logoText}>Check Balance</Text>
+      <TextInput
+        style={styles.inputBox}
+        underlineColorAndroid="rgba(0,0,0,0)"
+        placeholder="Account Number"
+        placeholderTextColor="#ffffff"
+        selectionColor="#fff"
+        keyboardType="number-pad"
+        value={accountNumber}
+        onChangeText={setAccountNumber}
+      />
+      <TouchableOpacity
+        style={styles.button}
+        onPress={fetchBalance}
+        disabled={!accountNumber || loading}
+      >
+        <Text style={styles.buttonText}>
+          {loading ? 'Checking...' : 'Check Balance'}
+        </Text>
+      </TouchableOpacity>
+      <View style={styles.signupTextCont}>
+        <Text style={styles.signupButton} onPress={() => Actions.Homes()}>
+          Home
+        </Text>
       </View>
-    );
-  }
-}
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -113,3 +115,5 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 });
+
+export default CheckBalance;
