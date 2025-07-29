@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, { useState, useRef } from 'react';
 import {
   StyleSheet,
   Text,
@@ -9,31 +9,26 @@ import {
 } from 'react-native';
 
 import Logo from '../components/Logo';
-import {Actions} from 'react-native-router-flux';
+import { Actions } from 'react-native-router-flux';
 import InputText from '../components/InputText';
 
-class Register extends Component<{}> {
-  goBack() {
+const Register = () => {
+  const [FirstName, setFirstName] = useState('');
+  const [LastName, setLastName] = useState('');
+  const [AccountNo, setAccountNo] = useState('');
+  const [Address, setAddress] = useState('');
+  const [Amount, setAmount] = useState('');
+
+  const accountRef = useRef(null);
+  const fnameRef = useRef(null);
+  const lnameRef = useRef(null);
+  const addressRef = useRef(null);
+
+  const goBack = () => {
     Actions.pop();
-  }
+  };
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      FirstName: '',
-      LastName: '',
-      AccountNo: '',
-      Address: '',
-      Amount: '',
-    };
-  }
-  userRegister = () => {
-    const {FirstName} = this.state;
-    const {LastName} = this.state;
-    const {AccountNo} = this.state;
-    const {Address} = this.state;
-    const {Amount} = this.state;
-
+  const userRegister = () => {
     fetch('http://192.168.43.9:8080/api/v1/account_detail', {
       method: 'post',
       mode: 'no-cors',
@@ -60,87 +55,15 @@ class Register extends Component<{}> {
       });
   };
 
-  render() {
-    return (
-      <View style={styles.container}>
-        <StatusBar backgroundColor="#1c313a" barStyle="light-content" />
-        <Logo />
-        <Text style={styles.logoText}> Create Account</Text>
-        <TextInput
-          style={styles.inputBox}
-          underlineColorAndroid="rgba(0,0,0,0)"
-          placeholder="Account Number"
-          secureTextEntry={true}
-          placeholderTextColor="#ffffff"
-          selectionColor="#fff"
-          keyboardType="number-pad"
-          onSubmitEditing={() => this.account.focus()}
-          onChangeText={AccountNo => this.setState({AccountNo})}
-        />
-        <TextInput
-          style={styles.inputBox}
-          underlineColorAndroid="rgba(0,0,0,0)"
-          placeholder="Amount"
-          placeholderTextColor="#ffffff"
-          ref={input => (this.account = input)}
-          selectionColor="#fff"
-          keyboardType="number-pad"
-          onSubmitEditing={() => this.fname.focus()}
-          onChangeText={Amount => this.setState({Amount})}
-        />
-        <TextInput
-          style={styles.inputBox}
-          underlineColorAndroid="rgba(0,0,0,0)"
-          placeholder="First Name"
-          placeholderTextColor="#ffffff"
-          ref={input => (this.fname = input)}
-          selectionColor="#fff"
-          keyboardType="email-address"
-          onSubmitEditing={() => this.lname.focus()}
-          onChangeText={FirstName => this.setState({FirstName})}
-        />
-        <TextInput
-          style={styles.inputBox}
-          underlineColorAndroid="rgba(0,0,0,0)"
-          placeholder="Last Name"
-          placeholderTextColor="#ffffff"
-          ref={input => (this.lname = input)}
-          selectionColor="#fff"
-          keyboardType="email-address"
-          onChangeText={LastName => this.setState({LastName})}
-        />
-        <TextInput
-          style={styles.inputBox}
-          underlineColorAndroid="rgba(0,0,0,0)"
-          placeholder="Address"
-          placeholderTextColor="#ffffff"
-          ref={input => (this.address = input)}
-          selectionColor="#fff"
-          keyboardType="email-address"
-          onChangeText={Address => this.setState({Address})}
-        />
-
-        <TouchableOpacity style={styles.button} onPress={this.userRegister}>
-          <Text style={styles.buttonText}>Register </Text>
-        </TouchableOpacity>
-
-        <View style={styles.signupTextCont}>
-          <Text style={styles.signupButton} onPress={() => Actions.Homes()}>
-            Home
-          </Text>
-        </View>
-      </View>
-    );
-  }
-  renderTextInput = field => {
+  const renderTextInput = field => {
     const {
-      meta: {touched, error},
+      meta: { touched, error },
       label,
       secureTextEntry,
       maxLength,
       keyboardType,
       placeholder,
-      input: {onChange, ...restInput},
+      input: { onChange, ...restInput },
     } = field;
     return (
       <View>
@@ -157,28 +80,78 @@ class Register extends Component<{}> {
       </View>
     );
   };
-}
 
-// const validate = values => {
-//   const errors = {};
+  return (
+    <View style={styles.container}>
+      <StatusBar backgroundColor="#1c313a" barStyle="light-content" />
+      <Logo />
+      <Text style={styles.logoText}> Create Account</Text>
+      <TextInput
+        style={styles.inputBox}
+        underlineColorAndroid="rgba(0,0,0,0)"
+        placeholder="Account Number"
+        secureTextEntry={true}
+        placeholderTextColor="#ffffff"
+        selectionColor="#fff"
+        keyboardType="number-pad"
+        onSubmitEditing={() => accountRef.current && accountRef.current.focus()}
+        onChangeText={setAccountNo}
+      />
+      <TextInput
+        style={styles.inputBox}
+        underlineColorAndroid="rgba(0,0,0,0)"
+        placeholder="Amount"
+        placeholderTextColor="#ffffff"
+        ref={accountRef}
+        selectionColor="#fff"
+        keyboardType="number-pad"
+        onSubmitEditing={() => fnameRef.current && fnameRef.current.focus()}
+        onChangeText={setAmount}
+      />
+      <TextInput
+        style={styles.inputBox}
+        underlineColorAndroid="rgba(0,0,0,0)"
+        placeholder="First Name"
+        placeholderTextColor="#ffffff"
+        ref={fnameRef}
+        selectionColor="#fff"
+        keyboardType="email-address"
+        onSubmitEditing={() => lnameRef.current && lnameRef.current.focus()}
+        onChangeText={setFirstName}
+      />
+      <TextInput
+        style={styles.inputBox}
+        underlineColorAndroid="rgba(0,0,0,0)"
+        placeholder="Last Name"
+        placeholderTextColor="#ffffff"
+        ref={lnameRef}
+        selectionColor="#fff"
+        keyboardType="email-address"
+        onChangeText={setLastName}
+      />
+      <TextInput
+        style={styles.inputBox}
+        underlineColorAndroid="rgba(0,0,0,0)"
+        placeholder="Address"
+        placeholderTextColor="#ffffff"
+        ref={addressRef}
+        selectionColor="#fff"
+        keyboardType="email-address"
+        onChangeText={setAddress}
+      />
 
-//   if (!values.firstName) {
-//     errors.firstName = ' First Name is required';
-//   }
+      <TouchableOpacity style={styles.button} onPress={userRegister}>
+        <Text style={styles.buttonText}>Register </Text>
+      </TouchableOpacity>
 
-//   if (!values.lastName) {
-//     errors.lastName = ' Last Name is required';
-//   }
-
-//   if (!values.id) {
-//     errors.id = ' Id is required';
-//   }
-
-//   if (!values.phoneno) {
-//     errors.phoneno = ' Account Number  is required';
-//   }
-//   return errors;
-// };
+      <View style={styles.signupTextCont}>
+        <Text style={styles.signupButton} onPress={() => Actions.Homes()}>
+          Home
+        </Text>
+      </View>
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
